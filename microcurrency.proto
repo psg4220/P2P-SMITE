@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package microcurrency;
+
+message Transaction {
+    string sender = 1;
+    string recipient = 2;
+    uint64 amount = 3;
+    uint32 tx_type = 4;
+    string signature = 5;
+    string tx_id = 6;
+    int64 timestamp = 7;
+}
+
+message Certificate {
+    string issued_to = 1;
+    uint32 permissions = 2;
+    string issued_by = 3;
+    int64 valid_from = 4;
+    int64 valid_until = 5;
+    string signature = 6;
+    // New fields
+    uint64 transaction_fee = 7;      // Base transaction fee amount
+    double fee_percentage = 8;       // Percentage fee (0.001 = 0.1%)
+    string currency_name = 9;        // Full name of the currency
+    string currency_ticker = 10;     // Ticker symbol (e.g., BTC, ETH)
+    string fee_recipient = 11;       // Public key of fee recipient
+}
+
+message Block {
+    uint32 block_number = 1;
+    string previous_hash = 2;
+    int64 timestamp = 3;
+    string merkle_root = 4; // Added field
+    repeated Transaction transactions = 5;
+    Certificate node_certificate = 6;
+    string block_signature = 7;
+    string block_hash = 8;
+}

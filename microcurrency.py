@@ -19,28 +19,28 @@ class TransactionType(Enum):
 class Permission(Enum):
     CAN_VERIFY = 0b001  # Can create/verify blocks
     CAN_MINT = 0b010    # Can mint coins
-    ROOT = 0b100        # Has all permissions and can issue certificates
+    BOTH = 0b011        # Can both verify blocks and mint coins
 
     @classmethod
     def has_permission(cls, perms: int, check: 'Permission') -> bool:
-        if perms & Permission.ROOT.value:
+        if perms & Permission.BOTH.value == Permission.BOTH.value:
             return True
         return (perms & check.value) == check.value
 
 # Transaction object
 class Transaction:
-    def __init__(self, sender: str, recipient: str, amount: int,
+    def __init__(self, sender: str, recipient: str, amount: float,
                  tx_type: TransactionType, signature: str, tx_id: str = None, timestamp: int = None):
         self.sender = sender
         self.recipient = recipient
-        self.amount = amount
+        self.amount = round(float(amount), 2)  # Ensure two decimal places
         self.tx_type = tx_type
         self.signature = signature
         self.timestamp = timestamp if timestamp else int(time.time())
         self.tx_id = tx_id if tx_id else self.calculate_tx_id()
 
     def calculate_tx_id(self) -> str:
-        tx_data = f"{self.sender}{self.recipient}{self.amount}{self.tx_type.value}{self.signature}{self.timestamp}"
+        tx_data = f"{self.sender}{self.recipient}{self.amount:.2f}{self.tx_type.value}{self.signature}{self.timestamp}"
         return hashlib.sha256(tx_data.encode()).hexdigest()
 
     def to_proto(self) -> microcurrency_pb2.Transaction:
@@ -79,7 +79,7 @@ class Transaction:
         data = {
             "sender": self.sender,
             "recipient": self.recipient,
-            "amount": self.amount,
+            "amount": f"{self.amount:.2f}",
             "tx_type": self.tx_type.name,
             "signature": self.signature,
             "tx_id": self.tx_id,
@@ -91,16 +91,14 @@ class Transaction:
 class Certificate:
     def __init__(self, issued_to: str, permissions: int, issued_by: str,
                  valid_from: int, valid_until: int, signature: str,
-                 transaction_fee: int = 0, fee_percentage: float = 0.0,
-                 currency_name: str = "Microcurrency", currency_ticker: str = "MCC",
-                 fee_recipient: str = ""):
+                 fee_percentage: float = 0.0, currency_name: str = "Microcurrency",
+                 currency_ticker: str = "MCC", fee_recipient: str = ""):
         self.issued_to = issued_to
         self.permissions = permissions
         self.issued_by = issued_by
         self.valid_from = valid_from
         self.valid_until = valid_until
         self.signature = signature
-        self.transaction_fee = transaction_fee
         self.fee_percentage = fee_percentage
         self.currency_name = currency_name
         self.currency_ticker = currency_ticker
@@ -114,7 +112,6 @@ class Certificate:
         proto_cert.valid_from = self.valid_from
         proto_cert.valid_until = self.valid_until
         proto_cert.signature = self.signature
-        proto_cert.transaction_fee = self.transaction_fee
         proto_cert.fee_percentage = self.fee_percentage
         proto_cert.currency_name = self.currency_name
         proto_cert.currency_ticker = self.currency_ticker
@@ -130,7 +127,6 @@ class Certificate:
             valid_from=proto_cert.valid_from,
             valid_until=proto_cert.valid_until,
             signature=proto_cert.signature,
-            transaction_fee=proto_cert.transaction_fee,
             fee_percentage=proto_cert.fee_percentage,
             currency_name=proto_cert.currency_name,
             currency_ticker=proto_cert.currency_ticker,
@@ -148,8 +144,8 @@ class Certificate:
 
     def __str__(self) -> str:
         perms = []
-        if self.permissions & Permission.ROOT.value:
-            perms.append("ROOT")
+        if self.permissions & Permission.BOTH.value == Permission.BOTH.value:
+            perms.append("BOTH")
         if self.permissions & Permission.CAN_VERIFY.value:
             perms.append("CAN_VERIFY")
         if self.permissions & Permission.CAN_MINT.value:
@@ -161,7 +157,6 @@ class Certificate:
             "valid_from": self.valid_from,
             "valid_until": self.valid_until,
             "signature": self.signature,
-            "transaction_fee": self.transaction_fee,
             "fee_percentage": self.fee_percentage,
             "currency_name": self.currency_name,
             "currency_ticker": self.currency_ticker,
@@ -260,19 +255,17 @@ def compute_merkle_root(tx_ids: List[str]) -> str:
 
 # Utility to create a root issuer certificate
 def create_root_certificate(public_key: str, private_key: ed25519.Ed25519PrivateKey,
-                            transaction_fee: int = 0, fee_percentage: float = 0.0,
-                            currency_name: str = "Microcurrency", currency_ticker: str = "MCC",
-                            fee_recipient: str = "") -> Certificate:
+                            fee_percentage: float = 0.0, currency_name: str = "Microcurrency",
+                            currency_ticker: str = "MCC", fee_recipient: str = "") -> Certificate:
     timestamp_now = int(time.time())
     valid_duration = 1000 * 365 * 24 * 60 * 60  # 1000 years
     cert = Certificate(
         issued_to=public_key,
-        permissions=Permission.ROOT.value,
+        permissions=Permission.BOTH.value,
         issued_by=public_key,
         valid_from=timestamp_now,
         valid_until=timestamp_now + valid_duration,
         signature="",
-        transaction_fee=transaction_fee,
         fee_percentage=fee_percentage,
         currency_name=currency_name,
         currency_ticker=currency_ticker,
@@ -287,9 +280,8 @@ def create_root_certificate(public_key: str, private_key: ed25519.Ed25519Private
 
 def create_node_certificate(node_public_key: str, permissions: int,
                             issuer_public_key: str, issuer_private_key: ed25519.Ed25519PrivateKey,
-                            transaction_fee: int = 0, fee_percentage: float = 0.0,
-                            currency_name: str = "Microcurrency", currency_ticker: str = "MCC",
-                            fee_recipient: str = "") -> Certificate:
+                            fee_percentage: float = 0.0, currency_name: str = "Microcurrency",
+                            currency_ticker: str = "MCC", fee_recipient: str = "") -> Certificate:
     timestamp_now = int(time.time())
     valid_duration = 365 * 24 * 60 * 60  # 1 year
     cert = Certificate(
@@ -299,31 +291,10 @@ def create_node_certificate(node_public_key: str, permissions: int,
         valid_from=timestamp_now,
         valid_until=timestamp_now + valid_duration,
         signature="",
-        transaction_fee=transaction_fee,
         fee_percentage=fee_percentage,
         currency_name=currency_name,
         currency_ticker=currency_ticker,
         fee_recipient=fee_recipient if fee_recipient else issuer_public_key
-    )
-    proto_cert = cert.to_proto()
-    proto_cert.signature = ""
-    signature_data = proto_cert.SerializeToString()
-    signature = issuer_private_key.sign(signature_data)
-    cert.signature = signature.hex()
-    return cert
-
-# Utility to create a certificate for a non-root node
-def create_node_certificate(node_public_key: str, permissions: int,
-                            issuer_public_key: str, issuer_private_key: ed25519.Ed25519PrivateKey) -> Certificate:
-    timestamp_now = int(time.time())
-    valid_duration = 365 * 24 * 60 * 60  # 1 year
-    cert = Certificate(
-        issued_to=node_public_key,
-        permissions=permissions,
-        issued_by=issuer_public_key,
-        valid_from=timestamp_now,
-        valid_until=timestamp_now + valid_duration,
-        signature=""
     )
     proto_cert = cert.to_proto()
     proto_cert.signature = ""
@@ -337,7 +308,6 @@ def verify_certificate(certificate: Certificate, issuer_public_key: str) -> bool
     try:
         current_time = int(time.time())
         if not (certificate.valid_from <= current_time <= certificate.valid_until):
-            print("Certificate is expired or not yet valid.")
             return False
         issuer_pubkey = ed25519.Ed25519PublicKey.from_public_bytes(bytes.fromhex(issuer_public_key))
         proto_cert = certificate.to_proto()
@@ -346,45 +316,36 @@ def verify_certificate(certificate: Certificate, issuer_public_key: str) -> bool
         verification_data = proto_cert.SerializeToString()
         issuer_pubkey.verify(bytes.fromhex(signature), verification_data)
         return True
-    except Exception as e:
-        print(f"Certificate verification failed: {str(e)}")
+    except Exception:
         return False
 
 # Verify if a node has sufficient permissions to create a block
 def verify_block_authority(block: Block, issuer_public_key: str) -> bool:
     if not verify_certificate(block.node_certificate, issuer_public_key):
-        print("Block certificate is invalid.")
         return False
     if not Permission.has_permission(block.node_certificate.permissions, Permission.CAN_VERIFY):
-        print("Node lacks CAN_VERIFY permission.")
         return False
     try:
         node_pubkey = ed25519.Ed25519PublicKey.from_public_bytes(bytes.fromhex(block.node_certificate.issued_to))
         block_data = f"{block.block_number}{block.previous_hash}{block.timestamp}{block.merkle_root}{block.node_certificate.signature}"
         node_pubkey.verify(bytes.fromhex(block.block_signature), block_data.encode())
-        print("Block signature verification successful.")
         return True
-    except Exception as e:
-        print(f"Block signature verification failed: {str(e)}")
+    except Exception:
         return False
 
 # Verify transaction permissions
 def verify_transaction(transaction: Transaction, certificate: Certificate, issuer_public_key: str) -> bool:
     if not verify_certificate(certificate, issuer_public_key):
-        print("Transaction certificate is invalid.")
         return False
     if transaction.tx_type == TransactionType.MINT:
         if not Permission.has_permission(certificate.permissions, Permission.CAN_MINT):
-            print("Node lacks CAN_MINT permission for MINT transaction.")
             return False
     try:
         sender_pubkey = ed25519.Ed25519PublicKey.from_public_bytes(bytes.fromhex(transaction.sender))
-        tx_data = f"{transaction.sender}{transaction.recipient}{transaction.amount}{transaction.tx_type.value}"
+        tx_data = f"{transaction.sender}{transaction.recipient}{transaction.amount:.2f}{transaction.tx_type.value}"
         sender_pubkey.verify(bytes.fromhex(transaction.signature), tx_data.encode())
-        print("Transaction signature verification successful.")
         return True
-    except Exception as e:
-        print(f"Transaction signature verification failed: {str(e)}")
+    except Exception:
         return False
 
 # Example key generation

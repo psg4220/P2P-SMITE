@@ -10,20 +10,14 @@ from google.protobuf import symbol_database as _symbol_database
 
 _sym_db = _symbol_database.Default()
 
-
-
-
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='microcurrency.proto',
   package='microcurrency',
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x13microcurrency.proto\x12\rmicrocurrency\"\x86\x01\n\x0bTransaction\x12\x0e\n\x06sender\x18\x01 \x01(\t\x12\x11\n\trecipient\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x04\x12\x0f\n\x07tx_type\x18\x04 \x01(\r\x12\x11\n\tsignature\x18\x05 \x01(\t\x12\r\n\x05tx_id\x18\x06 \x01(\t\x12\x11\n\ttimestamp\x18\x07 \x01(\x03\"\xfc\x01\n\x0b\x43\x65rtificate\x12\x11\n\tissued_to\x18\x01 \x01(\t\x12\x13\n\x0bpermissions\x18\x02 \x01(\r\x12\x11\n\tissued_by\x18\x03 \x01(\t\x12\x12\n\nvalid_from\x18\x04 \x01(\x03\x12\x13\n\x0bvalid_until\x18\x05 \x01(\x03\x12\x11\n\tsignature\x18\x06 \x01(\t\x12\x17\n\x0ftransaction_fee\x18\x07 \x01(\x04\x12\x16\n\x0e\x66\x65\x65_percentage\x18\x08 \x01(\x01\x12\x15\n\rcurrency_name\x18\t \x01(\t\x12\x17\n\x0f\x63urrency_ticker\x18\n \x01(\t\x12\x15\n\rfee_recipient\x18\x0b \x01(\t\"\xf1\x01\n\x05\x42lock\x12\x14\n\x0c\x62lock_number\x18\x01 \x01(\r\x12\x15\n\rprevious_hash\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\x03\x12\x13\n\x0bmerkle_root\x18\x04 \x01(\t\x12\x30\n\x0ctransactions\x18\x05 \x03(\x0b\x32\x1a.microcurrency.Transaction\x12\x34\n\x10node_certificate\x18\x06 \x01(\x0b\x32\x1a.microcurrency.Certificate\x12\x17\n\x0f\x62lock_signature\x18\x07 \x01(\t\x12\x12\n\nblock_hash\x18\x08 \x01(\tb\x06proto3'
+  serialized_pb=b'\n\x13microcurrency.proto\x12\rmicrocurrency\"\x86\x01\n\x0bTransaction\x12\x0e\n\x06sender\x18\x01 \x01(\t\x12\x11\n\trecipient\x18\x02 \x01(\t\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x01\x12\x0f\n\x07tx_type\x18\x04 \x01(\r\x12\x11\n\tsignature\x18\x05 \x01(\t\x12\r\n\x05tx_id\x18\x06 \x01(\t\x12\x11\n\ttimestamp\x18\x07 \x01(\x03\"\xd8\x01\n\x0b\x43\x65rtificate\x12\x11\n\tissued_to\x18\x01 \x01(\t\x12\x13\n\x0bpermissions\x18\x02 \x01(\r\x12\x11\n\tissued_by\x18\x03 \x01(\t\x12\x12\n\nvalid_from\x18\x04 \x01(\x03\x12\x13\n\x0bvalid_until\x18\x05 \x01(\x03\x12\x11\n\tsignature\x18\x06 \x01(\t\x12\x16\n\x0e\x66\x65\x65_percentage\x18\x07 \x01(\x01\x12\x15\n\rcurrency_name\x18\x08 \x01(\t\x12\x17\n\x0f\x63urrency_ticker\x18\t \x01(\t\x12\x15\n\rfee_recipient\x18\n \x01(\t\"\xf1\x01\n\x05\x42lock\x12\x14\n\x0c\x62lock_number\x18\x01 \x01(\r\x12\x15\n\rprevious_hash\x18\x02 \x01(\t\x12\x11\n\ttimestamp\x18\x03 \x01(\x03\x12\x13\n\x0bmerkle_root\x18\x04 \x01(\t\x12\x30\n\x0ctransactions\x18\x05 \x03(\x0b\x32\x1a.microcurrency.Transaction\x12\x34\n\x10node_certificate\x18\x06 \x01(\x0b\x32\x1a.microcurrency.Certificate\x12\x17\n\x0f\x62lock_signature\x18\x07 \x01(\t\x12\x12\n\nblock_hash\x18\x08 \x01(\t'
 )
-
-
-
 
 _TRANSACTION = _descriptor.Descriptor(
   name='Transaction',
@@ -49,8 +43,8 @@ _TRANSACTION = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='amount', full_name='microcurrency.Transaction.amount', index=2,
-      number=3, type=4, cpp_type=4, label=1,
-      has_default_value=False, default_value=0,
+      number=3, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -92,12 +86,9 @@ _TRANSACTION = _descriptor.Descriptor(
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
-  oneofs=[
-  ],
   serialized_start=39,
   serialized_end=173,
 )
-
 
 _CERTIFICATE = _descriptor.Descriptor(
   name='Certificate',
@@ -150,36 +141,29 @@ _CERTIFICATE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='transaction_fee', full_name='microcurrency.Certificate.transaction_fee', index=6,
-      number=7, type=4, cpp_type=4, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='fee_percentage', full_name='microcurrency.Certificate.fee_percentage', index=7,
-      number=8, type=1, cpp_type=5, label=1,
+      name='fee_percentage', full_name='microcurrency.Certificate.fee_percentage', index=6,
+      number=7, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='currency_name', full_name='microcurrency.Certificate.currency_name', index=8,
+      name='currency_name', full_name='microcurrency.Certificate.currency_name', index=7,
+      number=8, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='currency_ticker', full_name='microcurrency.Certificate.currency_ticker', index=8,
       number=9, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='currency_ticker', full_name='microcurrency.Certificate.currency_ticker', index=9,
+      name='fee_recipient', full_name='microcurrency.Certificate.fee_recipient', index=9,
       number=10, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='fee_recipient', full_name='microcurrency.Certificate.fee_recipient', index=10,
-      number=11, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -194,12 +178,9 @@ _CERTIFICATE = _descriptor.Descriptor(
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
-  oneofs=[
-  ],
   serialized_start=176,
-  serialized_end=428,
+  serialized_end=392,
 )
-
 
 _BLOCK = _descriptor.Descriptor(
   name='Block',
@@ -275,10 +256,8 @@ _BLOCK = _descriptor.Descriptor(
   is_extendable=False,
   syntax='proto3',
   extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=431,
-  serialized_end=672,
+  serialized_start=395,
+  serialized_end=636,
 )
 
 _BLOCK.fields_by_name['transactions'].message_type = _TRANSACTION
@@ -308,6 +287,3 @@ Block = _reflection.GeneratedProtocolMessageType('Block', (_message.Message,), {
   # @@protoc_insertion_point(class_scope:microcurrency.Block)
   })
 _sym_db.RegisterMessage(Block)
-
-
-# @@protoc_insertion_point(module_scope)
